@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Listas de la compra{% endblock %}
+{% block content %}
+    <h1>Listas de la compra</h1>
+
+    <div class="card">
+        <h2>Generar nueva lista desde recetas</h2>
+        <form method="post" action="{{ url_for('shopping_list.generate') }}">
+            <label for="name">Nombre</label>
+            <input type="text" id="name" name="name" placeholder="Nombre de la lista" required>
+
+            <label>Recetas</label>
+            {% if recipes %}
+                <div class="card-list">
+                    {% for recipe in recipes %}
+                        <label style="display: block; font-weight: normal; color: inherit;">
+                            <input type="checkbox" name="recipe_ids[]" value="{{ recipe.id }}" style="width: auto; display: inline-block;">
+                            {{ recipe.title }}
+                        </label>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="muted">No hay recetas todavia.</p>
+            {% endif %}
+
+            <button type="submit" style="margin-top: 0.75rem;">Generar lista</button>
+        </form>
+    </div>
+
+    <h2>Listas guardadas</h2>
+    {% if shopping_lists %}
+        <div class="card-list">
+            {% for shopping_list in shopping_lists %}
+                <div class="card">
+                    <a href="{{ url_for('shopping_list.detail', list_id=shopping_list.id) }}"><strong>{{ shopping_list.name }}</strong></a>
+                    <p class="muted">{{ shopping_list.created_at }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="muted">Todavia no hay listas de la compra.</p>
+    {% endif %}
+{% endblock %}

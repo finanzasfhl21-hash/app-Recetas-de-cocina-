@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar receta' if recipe else 'Nueva receta' }}{% endblock %}
+{% block content %}
+    {% set values = form_data or recipe %}
+    <h1>{{ 'Editar receta' if recipe else 'Nueva receta' }}</h1>
+
+    <form method="post">
+        <label for="title">Titulo</label>
+        <input type="text" id="title" name="title" value="{{ values.title if values else '' }}" required>
+
+        <label for="description">Descripcion</label>
+        <textarea id="description" name="description" rows="2">{{ values.description if values else '' }}</textarea>
+
+        <label for="category_id">Categoria</label>
+        <select id="category_id" name="category_id">
+            <option value="">Sin categoria</option>
+            {% for category in categories %}
+                <option value="{{ category.id }}"
+                    {% if values and values.category_id == category.id %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <div class="toolbar">
+            <div>
+                <label for="servings">Porciones</label>
+                <input type="number" id="servings" min="1" name="servings" value="{{ values.servings if values else 1 }}">
+            </div>
+            <div>
+                <label for="prep_time_minutes">Preparacion (min)</label>
+                <input type="number" id="prep_time_minutes" min="0" name="prep_time_minutes" value="{{ values.prep_time_minutes if values else 0 }}">
+            </div>
+            <div>
+                <label for="cook_time_minutes">Coccion (min)</label>
+                <input type="number" id="cook_time_minutes" min="0" name="cook_time_minutes" value="{{ values.cook_time_minutes if values else 0 }}">
+            </div>
+        </div>
+
+        <label>Ingredientes</label>
+        <div id="ingredient-rows">
+            {% if recipe and recipe.ingredients %}
+                {% for item in recipe.ingredients %}
+                    <div class="ingredient-row">
+                        <input type="text" name="ingredient_name[]" placeholder="Ingrediente" value="{{ item.name }}">
+                        <input type="number" step="any" name="ingredient_quantity[]" placeholder="Cantidad" value="{{ item.quantity }}">
+                        <input type="text" name="ingredient_unit[]" placeholder="Unidad" value="{{ item.unit }}">
+                        <button type="button" class="secondary remove-row">Quitar</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <button type="button" id="add-ingredient" class="secondary">+ Agregar ingrediente</button>
+
+        <label for="instructions">Instrucciones</label>
+        <textarea id="instructions" name="instructions" rows="6">{{ values.instructions if values else '' }}</textarea>
+
+        <p><button type="submit">Guardar</button></p>
+    </form>
+
+    <template id="ingredient-row-template">
+        <div class="ingredient-row">
+            <input type="text" name="ingredient_name[]" placeholder="Ingrediente">
+            <input type="number" step="any" name="ingredient_quantity[]" placeholder="Cantidad">
+            <input type="text" name="ingredient_unit[]" placeholder="Unidad">
+            <button type="button" class="secondary remove-row">Quitar</button>
+        </div>
+    </template>
+
+    <script src="{{ url_for('static', filename='js/recipe_form.js') }}"></script>
+{% endblock %}

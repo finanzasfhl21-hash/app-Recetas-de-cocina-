@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Categorias{% endblock %}
+{% block content %}
+    <h1>Categorias</h1>
+
+    <form class="toolbar" method="post" action="{{ url_for('category.create') }}">
+        <div>
+            <label for="name">Nueva categoria</label>
+            <input type="text" id="name" name="name" placeholder="Ej: Postre" required>
+        </div>
+        <div><button type="submit">Agregar</button></div>
+    </form>
+
+    {% if categories %}
+        <table>
+            <thead><tr><th>Nombre</th><th></th></tr></thead>
+            <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td>
+                            <form class="inline" method="post" action="{{ url_for('category.edit', category_id=category.id) }}">
+                                <input type="text" name="name" value="{{ category.name }}" style="width: auto; display: inline-block;">
+                                <button type="submit" class="secondary">Guardar</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form class="inline" method="post" action="{{ url_for('category.delete', category_id=category.id) }}"
+                                  onsubmit="return confirm('¿Eliminar esta categoria?');">
+                                <button type="submit" class="danger">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="muted">Todavia no hay categorias.</p>
+    {% endif %}
+{% endblock %}

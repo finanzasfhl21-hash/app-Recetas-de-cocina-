@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Recetas{% endblock %}
+{% block content %}
+    <div class="week-nav">
+        <h1>Recetas</h1>
+        <a class="button" href="{{ url_for('recipe.create') }}">+ Nueva receta</a>
+    </div>
+
+    <form class="toolbar" method="get">
+        <div>
+            <label for="q">Buscar</label>
+            <input type="text" id="q" name="q" value="{{ search }}" placeholder="Nombre o ingrediente">
+        </div>
+        <div>
+            <label for="category_id">Categoria</label>
+            <select id="category_id" name="category_id">
+                <option value="">Todas</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}" {% if selected_category_id == category.id %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div><button type="submit">Filtrar</button></div>
+    </form>
+
+    {% if recipes %}
+        <div class="card-list">
+            {% for recipe in recipes %}
+                <div class="card">
+                    <a href="{{ url_for('recipe.detail', recipe_id=recipe.id) }}"><strong>{{ recipe.title }}</strong></a>
+                    {% if recipe.category_name %}<span class="badge">{{ recipe.category_name }}</span>{% endif %}
+                    <p class="muted">{{ recipe.description }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="muted">No se encontraron recetas.</p>
+    {% endif %}
+{% endblock %}

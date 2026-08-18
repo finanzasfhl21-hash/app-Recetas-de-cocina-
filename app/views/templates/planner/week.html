@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Planificador semanal{% endblock %}
+{% block content %}
+    <h1>Planificador semanal</h1>
+
+    <div class="week-nav">
+        <a class="button secondary" href="{{ url_for('planner.week', semana=prev_week) }}">&laquo; Semana anterior</a>
+        <strong>Semana del {{ week_start }}</strong>
+        <a class="button secondary" href="{{ url_for('planner.week', semana=next_week) }}">Semana siguiente &raquo;</a>
+    </div>
+
+    <table class="week-grid">
+        <thead>
+            <tr>
+                <th>Comida</th>
+                {% for day in days %}
+                    <th>{{ day.label }}<br><span class="muted">{{ day.date }}</span></th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for meal_type in meal_types %}
+                <tr>
+                    <th>{{ meal_type_labels[meal_type] }}</th>
+                    {% for day in days %}
+                        {% set entry = grid[day.date][meal_type] %}
+                        <td>
+                            {% if entry %}
+                                <a href="{{ url_for('recipe.detail', recipe_id=entry.recipe_id) }}">{{ entry.recipe_title }}</a>
+                                <form method="post" action="{{ url_for('planner.remove', entry_id=entry.id) }}">
+                                    <input type="hidden" name="semana" value="{{ week_start }}">
+                                    <button type="submit" class="secondary" style="margin-top: 0.3rem;">Quitar</button>
+                                </form>
+                            {% else %}
+                                <form method="post" action="{{ url_for('planner.assign') }}">
+                                    <input type="hidden" name="date" value="{{ day.date }}">
+                                    <input type="hidden" name="meal_type" value="{{ meal_type }}">
+                                    <input type="hidden" name="semana" value="{{ week_start }}">
+                                    <select name="recipe_id" onchange="this.form.submit()">
+                                        <option value="">-- Asignar --</option>
+                                        {% for recipe in recipes %}
+                                            <option value="{{ recipe.id }}">{{ recipe.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <form method="post" action="{{ url_for('shopping_list.generate') }}" style="margin-top: 1.5rem;">
+        <input type="hidden" name="week_start" value="{{ week_start }}">
+        <label for="name">Generar lista de la compra para esta semana</label>
+        <input type="text" id="name" name="name" placeholder="Nombre de la lista" value="Compra semana {{ week_start }}">
+        <button type="submit" style="margin-top: 0.5rem;">Generar lista de la compra</button>
+    </form>
+{% endblock %}

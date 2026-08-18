@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ shopping_list.name }}{% endblock %}
+{% block content %}
+    <div class="week-nav">
+        <h1>{{ shopping_list.name }}</h1>
+        <form method="post" action="{{ url_for('shopping_list.delete', list_id=shopping_list.id) }}"
+              onsubmit="return confirm('¿Eliminar esta lista?');">
+            <button type="submit" class="danger">Eliminar lista</button>
+        </form>
+    </div>
+
+    {% if shopping_list.items %}
+        <div class="card-list">
+            {% for item in shopping_list.items %}
+                <div class="card {{ 'item-purchased' if item.purchased }}">
+                    <form method="post" action="{{ url_for('shopping_list.toggle_item', list_id=shopping_list.id, item_id=item.id) }}">
+                        <input type="hidden" name="purchased" value="{{ '0' if item.purchased else '1' }}">
+                        <label style="display: inline; font-weight: normal;">
+                            <input type="checkbox" onchange="this.form.submit()" {% if item.purchased %}checked{% endif %} style="width: auto; display: inline-block;">
+                            {{ item.quantity }} {{ item.unit }} {{ item.name }}
+                        </label>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="muted">La lista esta vacia.</p>
+    {% endif %}
+
+    <div class="card" style="margin-top: 1.5rem;">
+        <h2>Agregar item manual</h2>
+        <form method="post" action="{{ url_for('shopping_list.add_item', list_id=shopping_list.id) }}">
+            <div class="toolbar">
+                <div>
+                    <label for="name">Nombre</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div>
+                    <label for="quantity">Cantidad</label>
+                    <input type="number" step="any" id="quantity" name="quantity">
+                </div>
+                <div>
+                    <label for="unit">Unidad</label>
+                    <input type="text" id="unit" name="unit">
+                </div>
+                <div><button type="submit">Agregar</button></div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

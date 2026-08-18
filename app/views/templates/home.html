@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Inicio - Recetas de cocina{% endblock %}
+{% block content %}
+    <h1>Bienvenido</h1>
+
+    <section>
+        <h2>Recetas recientes</h2>
+        {% if recent_recipes %}
+            <div class="card-list">
+                {% for recipe in recent_recipes %}
+                    <div class="card">
+                        <a href="{{ url_for('recipe.detail', recipe_id=recipe.id) }}"><strong>{{ recipe.title }}</strong></a>
+                        {% if recipe.category_name %}<span class="badge">{{ recipe.category_name }}</span>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="muted">Todavia no hay recetas. <a href="{{ url_for('recipe.create') }}">Crea la primera</a>.</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>Plan de hoy ({{ today }})</h2>
+        {% if today_entries %}
+            <div class="card-list">
+                {% for entry in today_entries %}
+                    <div class="card">
+                        <span class="badge">{{ entry.meal_type }}</span>
+                        <a href="{{ url_for('recipe.detail', recipe_id=entry.recipe_id) }}">{{ entry.recipe_title }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="muted">No hay comidas planificadas para hoy. <a href="{{ url_for('planner.week') }}">Ir al planificador</a>.</p>
+        {% endif %}
+    </section>
+{% endblock %}

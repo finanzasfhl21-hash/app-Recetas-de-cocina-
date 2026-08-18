@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ recipe.title }}{% endblock %}
+{% block content %}
+    <div class="week-nav">
+        <h1>{{ recipe.title }}</h1>
+        <div>
+            <a class="button secondary" href="{{ url_for('recipe.edit', recipe_id=recipe.id) }}">Editar</a>
+            <form class="inline" method="post" action="{{ url_for('recipe.delete', recipe_id=recipe.id) }}"
+                  onsubmit="return confirm('¿Eliminar esta receta?');">
+                <button type="submit" class="danger">Eliminar</button>
+            </form>
+        </div>
+    </div>
+
+    {% if recipe.category_name %}<span class="badge">{{ recipe.category_name }}</span>{% endif %}
+    <p>{{ recipe.description }}</p>
+
+    <p class="muted">
+        Porciones: {{ recipe.servings }} ·
+        Preparacion: {{ recipe.prep_time_minutes }} min ·
+        Coccion: {{ recipe.cook_time_minutes }} min
+    </p>
+
+    <h2>Ingredientes</h2>
+    {% if recipe.ingredients %}
+        <ul>
+            {% for item in recipe.ingredients %}
+                <li>{{ item.quantity }} {{ item.unit }} {{ item.name }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="muted">Sin ingredientes registrados.</p>
+    {% endif %}
+
+    <h2>Instrucciones</h2>
+    <p style="white-space: pre-line;">{{ recipe.instructions or 'Sin instrucciones registradas.' }}</p>
+
+    <form method="post" action="{{ url_for('shopping_list.generate') }}">
+        <input type="hidden" name="recipe_ids[]" value="{{ recipe.id }}">
+        <label for="name">Agregar a una nueva lista de la compra</label>
+        <input type="text" id="name" name="name" placeholder="Nombre de la lista" value="Compra para {{ recipe.title }}">
+        <button type="submit" style="margin-top: 0.5rem;">Generar lista de la compra</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Recetas de cocina{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="{{ url_for('home.index') }}">Recetas de cocina</a>
+        <nav>
+            <a href="{{ url_for('recipe.list_recipes') }}">Recetas</a>
+            <a href="{{ url_for('category.list_categories') }}">Categorias</a>
+            <a href="{{ url_for('planner.week') }}">Planificador</a>
+            <a href="{{ url_for('shopping_list.list_shopping_lists') }}">Lista de la compra</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="flash flash-{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
