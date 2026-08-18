@@ -19,6 +19,7 @@ class Recipe:
     description: str
     category_id: int | None
     category_name: str | None
+    image_url: str | None
     servings: int
     prep_time_minutes: int
     cook_time_minutes: int
@@ -35,6 +36,7 @@ def _row_to_recipe(row) -> Recipe:
         description=row["description"],
         category_id=row["category_id"],
         category_name=row["category_name"],
+        image_url=row["image_url"],
         servings=row["servings"],
         prep_time_minutes=row["prep_time_minutes"],
         cook_time_minutes=row["cook_time_minutes"],
@@ -52,14 +54,20 @@ class RecipeModel:
         rows = db.execute(
             """
             SELECT DISTINCT r.id, r.title, r.description, r.category_id,
-                   c.name AS category_name, r.servings, r.prep_time_minutes,
+                   c.name AS category_name, r.image_url, r.servings, r.prep_time_minutes,
                    r.cook_time_minutes, r.instructions, r.created_at, r.updated_at
             FROM recipes r
             LEFT JOIN categories c ON c.id = r.category_id
             LEFT JOIN recipe_ingredients ri ON ri.recipe_id = r.id
             LEFT JOIN ingredients i ON i.id = ri.ingredient_id
             WHERE (:like IS NULL OR r.title LIKE :like OR i.name LIKE :like)
-              AND (:category_id IS NULL OR r.category_id = :category_id)
+              AND (
+                    :category_id IS NULL
+                    OR r.category_id = :category_id
+                    OR r.category_id IN (
+                        SELECT id FROM categories WHERE parent_id = :category_id
+                    )
+                  )
             ORDER BY r.title
             """,
             {"like": like, "category_id": category_id},
@@ -72,7 +80,7 @@ class RecipeModel:
         rows = db.execute(
             """
             SELECT r.id, r.title, r.description, r.category_id,
-                   c.name AS category_name, r.servings, r.prep_time_minutes,
+                   c.name AS category_name, r.image_url, r.servings, r.prep_time_minutes,
                    r.cook_time_minutes, r.instructions, r.created_at, r.updated_at
             FROM recipes r
             LEFT JOIN categories c ON c.id = r.category_id
@@ -89,7 +97,7 @@ class RecipeModel:
         row = db.execute(
             """
             SELECT r.id, r.title, r.description, r.category_id,
-                   c.name AS category_name, r.servings, r.prep_time_minutes,
+                   c.name AS category_name, r.image_url, r.servings, r.prep_time_minutes,
                    r.cook_time_minutes, r.instructions, r.created_at, r.updated_at
             FROM recipes r
             LEFT JOIN categories c ON c.id = r.category_id
@@ -144,9 +152,9 @@ class RecipeModel:
         cursor = db.execute(
             """
             INSERT INTO recipes
-                (title, description, category_id, servings,
+                (title, description, category_id, image_url, servings,
                  prep_time_minutes, cook_time_minutes, instructions)
-            VALUES (:title, :description, :category_id, :servings,
+            VALUES (:title, :description, :category_id, :image_url, :servings,
                     :prep_time_minutes, :cook_time_minutes, :instructions)
             """,
             data,
@@ -165,6 +173,7 @@ class RecipeModel:
             SET title = :title,
                 description = :description,
                 category_id = :category_id,
+                image_url = :image_url,
                 servings = :servings,
                 prep_time_minutes = :prep_time_minutes,
                 cook_time_minutes = :cook_time_minutes,

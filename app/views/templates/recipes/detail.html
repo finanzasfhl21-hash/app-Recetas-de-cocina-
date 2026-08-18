@@ -12,6 +12,12 @@
         </div>
     </div>
 
+    <img
+        src="{{ recipe.image_url or url_for('recipe.image_placeholder', name=recipe.title) }}"
+        alt="{{ recipe.title }}"
+        class="recipe-detail-image"
+    >
+
     {% if recipe.category_name %}<span class="badge">{{ recipe.category_name }}</span>{% endif %}
     <p>{{ recipe.description }}</p>
 

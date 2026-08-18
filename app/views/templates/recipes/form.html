@@ -11,13 +11,16 @@
         <label for="description">Descripcion</label>
         <textarea id="description" name="description" rows="2">{{ values.description if values else '' }}</textarea>
 
+        <label for="image_url">URL de imagen</label>
+        <input type="text" id="image_url" name="image_url" placeholder="https://..." value="{{ values.image_url if values else '' }}">
+
         <label for="category_id">Categoria</label>
         <select id="category_id" name="category_id">
             <option value="">Sin categoria</option>
             {% for category in categories %}
                 <option value="{{ category.id }}"
                     {% if values and values.category_id == category.id %}selected{% endif %}>
-                    {{ category.name }}
+                    {{ category.parent_name ~ ' / ' if category.parent_name }}{{ category.name }}
                 </option>
             {% endfor %}
         </select>

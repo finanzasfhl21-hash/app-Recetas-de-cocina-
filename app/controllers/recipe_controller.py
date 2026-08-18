@@ -1,9 +1,15 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, Response, flash, redirect, render_template, request, url_for
 
 from app.models.category import CategoryModel
 from app.models.recipe import RecipeModel
+from app.placeholder import placeholder_svg
 
 recipe_bp = Blueprint("recipe", __name__, url_prefix="/recetas")
+
+
+@recipe_bp.route("/imagen/<path:name>.svg")
+def image_placeholder(name: str):
+    return Response(placeholder_svg(name), mimetype="image/svg+xml")
 
 
 def _parse_ingredients(form) -> list[dict]:
@@ -32,6 +38,7 @@ def _parse_recipe_form(form) -> dict:
         "title": form.get("title", "").strip(),
         "description": form.get("description", "").strip(),
         "category_id": int(category_id) if category_id else None,
+        "image_url": form.get("image_url", "").strip() or None,
         "servings": int(form.get("servings") or 1),
         "prep_time_minutes": int(form.get("prep_time_minutes") or 0),
         "cook_time_minutes": int(form.get("cook_time_minutes") or 0),

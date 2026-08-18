@@ -1,6 +1,42 @@
 {% extends "base.html" %}
 {% block title %}Categorias{% endblock %}
 {% block content %}
+    {% macro category_row(category, is_child=False) %}
+        <tr>
+            <td>
+                <img
+                    class="category-thumb"
+                    src="{{ category.image_url or url_for('category.image_placeholder', name=category.name) }}"
+                    alt=""
+                >
+            </td>
+            <td{% if is_child %} class="child-row"{% endif %}>
+                <form class="inline" method="post" action="{{ url_for('category.edit', category_id=category.id) }}">
+                    {% if is_child %}<span class="muted">&#8618;</span>{% endif %}
+                    <input type="text" name="name" value="{{ category.name }}" style="width: auto; display: inline-block;">
+                    <select name="parent_id" style="width: auto; display: inline-block;">
+                        <option value="">Sin categoria padre</option>
+                        {% for parent in top_level_categories %}
+                            {% if parent.id != category.id %}
+                                <option value="{{ parent.id }}" {% if category.parent_id == parent.id %}selected{% endif %}>
+                                    {{ parent.name }}
+                                </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="image_url" value="{{ category.image_url or '' }}" placeholder="URL de imagen" style="width: auto; display: inline-block;">
+                    <button type="submit" class="secondary">Guardar</button>
+                </form>
+            </td>
+            <td>
+                <form class="inline" method="post" action="{{ url_for('category.delete', category_id=category.id) }}"
+                      onsubmit="return confirm('¿Eliminar esta categoria?');">
+                    <button type="submit" class="danger">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+    {% endmacro %}
+
     <h1>Categorias</h1>
 
     <form class="toolbar" method="post" action="{{ url_for('category.create') }}">
@@ -8,28 +44,31 @@
             <label for="name">Nueva categoria</label>
             <input type="text" id="name" name="name" placeholder="Ej: Postre" required>
         </div>
+        <div>
+            <label for="parent_id">Categoria padre</label>
+            <select id="parent_id" name="parent_id">
+                <option value="">Ninguna (categoria principal)</option>
+                {% for parent in top_level_categories %}
+                    <option value="{{ parent.id }}">{{ parent.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="image_url">URL de imagen</label>
+            <input type="text" id="image_url" name="image_url" placeholder="https://...">
+        </div>
         <div><button type="submit">Agregar</button></div>
     </form>
 
     {% if categories %}
         <table>
-            <thead><tr><th>Nombre</th><th></th></tr></thead>
+            <thead><tr><th>Imagen</th><th>Nombre / categoria padre / imagen</th><th></th></tr></thead>
             <tbody>
                 {% for category in categories %}
-                    <tr>
-                        <td>
-                            <form class="inline" method="post" action="{{ url_for('category.edit', category_id=category.id) }}">
-                                <input type="text" name="name" value="{{ category.name }}" style="width: auto; display: inline-block;">
-                                <button type="submit" class="secondary">Guardar</button>
-                            </form>
-                        </td>
-                        <td>
-                            <form class="inline" method="post" action="{{ url_for('category.delete', category_id=category.id) }}"
-                                  onsubmit="return confirm('¿Eliminar esta categoria?');">
-                                <button type="submit" class="danger">Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
+                    {{ category_row(category) }}
+                    {% for sub in category.children %}
+                        {{ category_row(sub, is_child=True) }}
+                    {% endfor %}
                 {% endfor %}
             </tbody>
         </table>

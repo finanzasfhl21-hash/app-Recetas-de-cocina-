@@ -4,14 +4,54 @@
     <h1>Bienvenido</h1>
 
     <section>
+        <h2>Categorias</h2>
+        {% if categories %}
+            <div class="category-grid">
+                {% for category in categories %}
+                    <div class="category-card">
+                        <a class="category-card-link" href="{{ url_for('recipe.list_recipes', category_id=category.id) }}">
+                            <div class="category-image-wrap">
+                                <img
+                                    src="{{ category.image_url or url_for('category.image_placeholder', name=category.name) }}"
+                                    alt="{{ category.name }}"
+                                    class="category-image"
+                                >
+                                <span class="category-image-title">{{ category.name }}</span>
+                            </div>
+                        </a>
+                        {% if category.children %}
+                            <div class="subcategory-list">
+                                {% for sub in category.children %}
+                                    <a class="badge subcategory-badge" href="{{ url_for('recipe.list_recipes', category_id=sub.id) }}">{{ sub.name }}</a>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="muted">Todavia no hay categorias. <a href="{{ url_for('category.list_categories') }}">Crea la primera</a>.</p>
+        {% endif %}
+    </section>
+
+    <section>
         <h2>Recetas recientes</h2>
         {% if recent_recipes %}
-            <div class="card-list">
+            <div class="recipe-grid">
                 {% for recipe in recent_recipes %}
-                    <div class="card">
-                        <a href="{{ url_for('recipe.detail', recipe_id=recipe.id) }}"><strong>{{ recipe.title }}</strong></a>
-                        {% if recipe.category_name %}<span class="badge">{{ recipe.category_name }}</span>{% endif %}
-                    </div>
+                    <a class="recipe-card" href="{{ url_for('recipe.detail', recipe_id=recipe.id) }}">
+                        <div class="recipe-image-wrap">
+                            <img
+                                src="{{ recipe.image_url or url_for('recipe.image_placeholder', name=recipe.title) }}"
+                                alt="{{ recipe.title }}"
+                                class="recipe-image"
+                            >
+                            {% if recipe.category_name %}<span class="badge recipe-card-badge">{{ recipe.category_name }}</span>{% endif %}
+                        </div>
+                        <div class="recipe-card-body">
+                            <strong>{{ recipe.title }}</strong>
+                        </div>
+                    </a>
                 {% endfor %}
             </div>
         {% else %}

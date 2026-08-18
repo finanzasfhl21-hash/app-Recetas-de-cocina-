@@ -34,6 +34,7 @@ def make_recipe_data(**overrides) -> dict:
         "title": "Receta de prueba",
         "description": "Descripcion",
         "category_id": None,
+        "image_url": None,
         "servings": 2,
         "prep_time_minutes": 10,
         "cook_time_minutes": 20,

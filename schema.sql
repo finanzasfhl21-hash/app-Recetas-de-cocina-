@@ -1,8 +1,10 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS categories (
-    id   INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    name      TEXT NOT NULL UNIQUE,
+    parent_id INTEGER REFERENCES categories (id) ON DELETE CASCADE,
+    image_url TEXT
 );
 
 CREATE TABLE IF NOT EXISTS recipes (
@@ -10,6 +12,7 @@ CREATE TABLE IF NOT EXISTS recipes (
     title              TEXT NOT NULL,
     description        TEXT NOT NULL DEFAULT '',
     category_id        INTEGER REFERENCES categories (id) ON DELETE SET NULL,
+    image_url          TEXT,
     servings           INTEGER NOT NULL DEFAULT 1,
     prep_time_minutes  INTEGER NOT NULL DEFAULT 0,
     cook_time_minutes  INTEGER NOT NULL DEFAULT 0,
@@ -54,6 +57,7 @@ CREATE TABLE IF NOT EXISTS shopping_list_items (
     purchased        INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE INDEX IF NOT EXISTS idx_categories_parent ON categories (parent_id);
 CREATE INDEX IF NOT EXISTS idx_recipes_category ON recipes (category_id);
 CREATE INDEX IF NOT EXISTS idx_recipe_ingredients_recipe ON recipe_ingredients (recipe_id);
 CREATE INDEX IF NOT EXISTS idx_recipe_ingredients_ingredient ON recipe_ingredients (ingredient_id);
